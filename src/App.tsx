@@ -1,23 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
+interface Gari {
+  nome: 'A';
+  quantidadeLO: number;
+  quantidadeLS: number;
+  quantidadeLE: number;
+}
+
 function App() {
-  const [linhas, setLinhas] = useState(0);
-  const [colunas, setColunas] = useState(0);
   const [matriz, setMatriz] = useState<any[][]>([[]]);
   const [gerar, setGerar] = useState(false);
-  const array = [
-    { item: "A" },
-    { item: "Lo" },
-    { item: "Le" },
-    { item: "Ls" },
-    { item: "E" },
-    { item: "O" },
-    { item: "S" },
-    { item: "Lo" },
-    { item: "Le" },
-    { item: "Ls" },
-  ];
+  const [gari, setGari] = useState<Gari>({
+    nome: 'A',
+    quantidadeLO: 0,
+    quantidadeLS: 0,
+    quantidadeLE: 0,
+  })
+  //variaveis contadoras
+  //quantidade de lixo Orgânico
+  var quantidadeO = 0;
+  //quantidade de lixo Seco
+  var quantidadeS = 0;
+  //quantidade de lixo Eletrônico
+  var quantidadeE = 0;
 
   function ambiente() {
     let min = Math.ceil(1);
@@ -33,81 +39,105 @@ function App() {
       case 4:
         return " ";
       case 5:
+        quantidadeS++;
         return "s";
       case 6:
+        quantidadeO++
         return "o";
       case 6:
+        quantidadeE++;
         return "e";
     }
   }
 
-  function gerarMatriz() {
-    let mt = Array(linhas)
+  useEffect(() => {
+    let mt = Array(20)
       .fill("")
-      .map((row) => new Array(colunas).fill(""));
+      .map((row) => new Array(20).fill(""));
     let l = 0;
     let c = 0;
-    for (l = 0; l < linhas; l++) {
-      for (c = 0; c < colunas; c++) {
-        if (l === 0 && c === 0) {
-          mt[l][c] = "A";
-        } else {
-          mt[l][c] = ambiente();
+    for (l = 0; l < 20; l++) {
+      for (c = 0; c < 20; c++) {
+        if (l === 0 && c === 0 || l === 0 && c === 19 || l === 4 && c === 4 || l === 4 && c === 13 || l === 14 && c === 4 || l === 14 && c === 13 || l === 19 && c === 0 || l === 19 && c === 19) {
+          mt[l][c] = 'LS';
+        }
+
+        if (l === 0 && c === 1 || l === 0 && c === 18 || l === 4 && c === 5 || l === 4 && c === 14 || l === 14 && c === 5 || l === 14 && c === 14 || l === 19 && c === 1 || l === 19 && c === 18) {
+          mt[l][c] = 'LO';
+        }
+
+        if (l === 0 && c === 2 || l === 0 && c === 17 || l === 4 && c === 6 || l === 4 && c === 15 || l === 14 && c === 6 || l === 14 && c === 15 || l === 19 && c === 2 || l === 19 && c === 17) {
+          mt[l][c] = 'LE';
+        }
+
+        if (l === 9 && c === 9) {
+          mt[l][c] = gari.nome;
         }
       }
     }
-    console.table(mt);
     setMatriz(mt);
     setGerar(true);
-    let s: string;
-    s = 2 + "2";
-    console.log(s);
-  }
+  });
+
+
+  function moverDireita(linhaAtual: number, colunaAtual: number) {
+    if (colunaAtual === 19) {
+      return false;
+    }
+    if (matriz[linhaAtual][colunaAtual + 1] === 'LS' || matriz[linhaAtual][colunaAtual + 1] === 'LE' || matriz[linhaAtual][colunaAtual + 1] === 'LO') {
+      return false;
+    }
+    if (matriz[linhaAtual][colunaAtual + 1] === ' ' || matriz[linhaAtual][colunaAtual + 1] === 's' || matriz[linhaAtual][colunaAtual + 1] === 'o' || matriz[linhaAtual][colunaAtual + 1] === 'e') {
+      return matriz[linhaAtual][colunaAtual + 1];
+    }
+  };
+
+  function moverEsquerda(linhaAtual: number, colunaAtual: number) {
+    if (colunaAtual === 0) {
+      return false;
+    }
+    if (matriz[linhaAtual][colunaAtual - 1] === 'LS' || matriz[linhaAtual][colunaAtual - 1] === 'LE' || matriz[linhaAtual][colunaAtual - 1] === 'LO') {
+      return false;
+    }
+    if (matriz[linhaAtual][colunaAtual - 1] === ' ' || matriz[linhaAtual][colunaAtual - 1] === 's' || matriz[linhaAtual][colunaAtual - 1] === 'o' || matriz[linhaAtual][colunaAtual - 1] === 'e') {
+      return matriz[linhaAtual][colunaAtual - 1];
+    }
+  };
+
+  function moverCima(linhaAtual: number, colunaAtual: number) {
+    if (linhaAtual === 0) {
+      return false;
+    }
+    if (matriz[linhaAtual - 1][colunaAtual] === 'LS' || matriz[linhaAtual - 1][colunaAtual] === 'LE' || matriz[linhaAtual - 1][colunaAtual] === 'LO') {
+      return false;
+    }
+    if (matriz[linhaAtual - 1][colunaAtual] === ' ' || matriz[linhaAtual - 1][colunaAtual] === 's' || matriz[linhaAtual - 1][colunaAtual] === 'o' || matriz[linhaAtual - 1][colunaAtual] === 'e') {
+      return matriz[linhaAtual - 1][colunaAtual];
+    }
+  };
+
+  function moverBaixo(linhaAtual: number, colunaAtual: number) {
+    if (linhaAtual === 19) {
+      return false;
+    }
+    if (matriz[linhaAtual + 1][colunaAtual] === 'LS' || matriz[linhaAtual + 1][colunaAtual] === 'LE' || matriz[linhaAtual + 1][colunaAtual] === 'LO') {
+      return false;
+    }
+    if (matriz[linhaAtual + 1][colunaAtual] === ' ' || matriz[linhaAtual + 1][colunaAtual] === 's' || matriz[linhaAtual + 1][colunaAtual] === 'o' || matriz[linhaAtual + 1][colunaAtual] === 'e') {
+      return matriz[linhaAtual + 1][colunaAtual];
+    }
+  };
 
   return (
     <div className="App">
       <header className="App-header">
-        {!gerar && (
-          <>
-            <label>Digite a quantidade de linhas</label>
-            <input
-              type="number"
-              defaultValue={0}
-              value={linhas}
-              onChange={(event) => {
-                setGerar(false);
-                setLinhas(parseInt(event.target.value));
-              }}
-              id="linhas"
-            ></input>
-            <label>Digite a quantidade de colunas</label>
-            <input
-              type="number"
-              defaultValue={0}
-              value={colunas}
-              onChange={(event) => {
-                setGerar(false);
-                setColunas(parseInt(event.target.value));
-              }}
-              id="colunas"
-            ></input>
-            <button
-              style={{ color: "blue", backgroundColor: "white" }}
-              onClick={() => {
-                gerarMatriz();
-              }}
-            >
-              Gerar
-            </button>
-          </>
-        )}
         {gerar &&
-          matriz.map((l, index1) => {
+          matriz.map((linha, index1) => {
             return (
               <div
-                style={{ display: "flex", flex: colunas, maxHeight: "42px" }}
+                style={{ display: "flex", flex: 20, maxHeight: "42px" }}
               >
-                {l.map((c, index2) => {
+                {linha.map((coluna, index2) => {
                   return (
                     <div
                       id={"div_" + index1 + "_" + index2}
@@ -122,7 +152,7 @@ function App() {
                         justifyContent: "center",
                       }}
                     >
-                      {c}
+                      {coluna}
                     </div>
                   );
                 })}
