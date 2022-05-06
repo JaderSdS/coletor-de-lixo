@@ -1,22 +1,21 @@
 import { useState } from "react";
+import produce from 'immer';
 import "./App.css";
-
-interface Gari {
-  nome: 'A';
-  quantidadeLO: number;
-  quantidadeLS: number;
-  quantidadeLE: number;
-}
+import { Direcao, Itens, Gari } from "./types";
 
 function App() {
-  const [matriz, setMatriz] = useState<any[][]>([[]]);
+  const [matriz, setMatriz] = useState<Itens[][]>([[]]);
   const [gerar, setGerar] = useState(false);
   const [gari, setGari] = useState<Gari>({
-    nome: 'A',
     quantidadeLO: 0,
     quantidadeLS: 0,
     quantidadeLE: 0,
-  })
+    posicao: {
+      coluna: 9,
+      linha: 9,
+    }
+  });
+
   //variaveis contadoras
   //quantidade de lixo Orgânico
   var quantidadeO = 0;
@@ -31,34 +30,34 @@ function App() {
     let num = Math.floor(Math.random() * (max - min)) + min;
     switch (num) {
       case 1:
-        return " ";
+        return Itens.LIVRE;
       case 2:
         if (quantidadeS === 60) {
-          return " ";
+          return Itens.LIVRE;
         } else {
           quantidadeS++;
-          return "s";
+          return Itens.LIXO_SECO;
         }
       case 3:
-        return " ";
+        return Itens.LIVRE;
       case 4:
         if (quantidadeE === 60) {
-          return " ";
+          return Itens.LIVRE;
         } else {
           quantidadeE++;
-          return "e";
+          return Itens.LIXO_ELETRONICO;
         }
       case 5:
-        return " ";
+        return Itens.LIVRE;
       case 6:
         if (quantidadeO === 60) {
-          return " ";
+          return Itens.LIVRE;
         } else {
           quantidadeO++;
-          return "o";
+          return Itens.LIXO_ORGANICO;
         };
       case 7:
-        return " ";
+        return Itens.LIVRE;
 
     }
   }
@@ -79,7 +78,7 @@ function App() {
           || l === 14 && c === 13
           || l === 19 && c === 0
           || l === 19 && c === 19) {
-          mt[l][c] = 'LS';
+          mt[l][c] = Itens.LIXEIRA_SECO;
         } else
 
           if (l === 0 && c === 1
@@ -90,7 +89,7 @@ function App() {
             || l === 14 && c === 14
             || l === 19 && c === 1
             || l === 19 && c === 18) {
-            mt[l][c] = 'LO';
+            mt[l][c] = Itens.LIXEIRA_ORGANICO;
           } else
 
             if (l === 0 && c === 2
@@ -101,11 +100,11 @@ function App() {
               || l === 14 && c === 15
               || l === 19 && c === 2
               || l === 19 && c === 17) {
-              mt[l][c] = 'LE';
+              mt[l][c] = Itens.LIXEIRA_ELETRONICO;
             } else
 
               if (l === 9 && c === 9) {
-                mt[l][c] = gari.nome;
+                mt[l][c] = Itens.GARI
               } else {
                 mt[l][c] = ambiente();
               }
@@ -116,36 +115,67 @@ function App() {
   };
 
 
-  function moverDireita(linhaAtual: number, colunaAtual: number) {
-    if (colunaAtual === 19) {
-      return false;
+  function moverDireita() {
+    const { coluna, linha } = gari.posicao;
+    if (coluna === 19) {
+      throw new Error('Não há espaço suficiente à direita.')
     }
-    if (matriz[linhaAtual][colunaAtual + 1] === 'LS'
-      || matriz[linhaAtual][colunaAtual + 1] === 'LE'
-      || matriz[linhaAtual][colunaAtual + 1] === 'LO') {
-      return false;
+
+    let proximoItem = Itens.GARI;
+
+    switch (matriz[linha][coluna + 1]) {
+      case Itens.LIXEIRA_SECO: {
+        throw new Error('Não é possível se movimentar para uma lixeira.')
+      }
+      case Itens.LIXEIRA_ELETRONICO: {
+        throw new Error('Não é possível se movimentar para uma lixeira.')
+      }
+      case Itens.LIXEIRA_ORGANICO: {
+        throw new Error('Não é possível se movimentar para uma lixeira.')
+      }
+      case Itens.LIXO_ELETRONICO: {
+        proximoItem = Itens.AGENTE_LIXO_ELETRONICO;
+        break;
+      }
+      case Itens.LIXO_ORGANICO: {
+        proximoItem = Itens.AGENTE_LIXO_ORGANICO;
+        break;
+      }
+      case Itens.LIXO_SECO: {
+        proximoItem = Itens.AGENTE_LIXO_SECO;
+        break;
+      }
+
     }
-    if (matriz[linhaAtual][colunaAtual + 1] === ' '
-      || matriz[linhaAtual][colunaAtual + 1] === 's'
-      || matriz[linhaAtual][colunaAtual + 1] === 'o'
-      || matriz[linhaAtual][colunaAtual + 1] === 'e') {
-      return matriz[linhaAtual][colunaAtual + 1];
-    }
+    // if (matriz[linha][coluna + 1] === Itens.)
+
+    setMatriz((state) => produce(state, draft => {
+      draft[linha][coluna + 1] = proximoItem;
+      draft[linha][coluna] = Itens.LIVRE;
+    }))
+
+    setGari(state => ({
+      ...state,
+      posicao: {
+        ...state.posicao,
+        coluna: state.posicao.coluna + 1,
+      }
+    }))
   };
 
   function moverEsquerda(linhaAtual: number, colunaAtual: number) {
     if (colunaAtual === 0) {
       return false;
     }
-    if (matriz[linhaAtual][colunaAtual - 1] === 'LS'
-      || matriz[linhaAtual][colunaAtual - 1] === 'LE'
-      || matriz[linhaAtual][colunaAtual - 1] === 'LO') {
+    if (matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_ORGANICO) {
       return false;
     }
-    if (matriz[linhaAtual][colunaAtual - 1] === ' '
-      || matriz[linhaAtual][colunaAtual - 1] === 's'
-      || matriz[linhaAtual][colunaAtual - 1] === 'o'
-      || matriz[linhaAtual][colunaAtual - 1] === 'e') {
+    if (matriz[linhaAtual][colunaAtual - 1] === Itens.LIVRE
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXO_SECO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXO_ORGANICO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXO_ELETRONICO) {
       return matriz[linhaAtual][colunaAtual - 1];
     }
   };
@@ -154,15 +184,15 @@ function App() {
     if (linhaAtual === 0) {
       return false;
     }
-    if (matriz[linhaAtual - 1][colunaAtual] === 'LS'
-      || matriz[linhaAtual - 1][colunaAtual] === 'LE'
-      || matriz[linhaAtual - 1][colunaAtual] === 'LO') {
+    if (matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_ORGANICO) {
       return false;
     }
-    if (matriz[linhaAtual - 1][colunaAtual] === ' '
-      || matriz[linhaAtual - 1][colunaAtual] === 's'
-      || matriz[linhaAtual - 1][colunaAtual] === 'o'
-      || matriz[linhaAtual - 1][colunaAtual] === 'e') {
+    if (matriz[linhaAtual - 1][colunaAtual] === Itens.LIVRE
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXO_SECO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXO_ORGANICO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXO_ELETRONICO) {
       return matriz[linhaAtual - 1][colunaAtual];
     }
   };
@@ -171,72 +201,75 @@ function App() {
     if (linhaAtual === 19) {
       return false;
     }
-    if (matriz[linhaAtual + 1][colunaAtual] === 'LS'
-      || matriz[linhaAtual + 1][colunaAtual] === 'LE'
-      || matriz[linhaAtual + 1][colunaAtual] === 'LO') {
+    if (matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_ORGANICO) {
       return false;
     }
-    if (matriz[linhaAtual + 1][colunaAtual] === ' '
-      || matriz[linhaAtual + 1][colunaAtual] === 's'
-      || matriz[linhaAtual + 1][colunaAtual] === 'o'
-      || matriz[linhaAtual + 1][colunaAtual] === 'e') {
+    if (matriz[linhaAtual + 1][colunaAtual] === Itens.LIVRE
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXO_SECO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXO_ORGANICO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXO_ELETRONICO) {
       return matriz[linhaAtual + 1][colunaAtual];
     }
   };
 
-  function moverGari(linhaAtual: number, colunaAtual: number, direcao: string) {
+  function moverGari(linhaAtual: number, colunaAtual: number, direcao: Direcao) {
     switch (direcao) {
-      case 'd':
-        return moverDireita(linhaAtual, colunaAtual);
-      case 'e':
+      case Direcao.DIREITA:
+        return moverDireita();
+      case Direcao.ESQUERDA:
         return moverEsquerda(linhaAtual, colunaAtual);
-      case 'c':
+      case Direcao.CIMA:
         return moverCima(linhaAtual, colunaAtual);
-      case 'b':
+      case Direcao.BAIXO:
         return moverBaixo(linhaAtual, colunaAtual);
     }
   };
 
   function recolherLixo(linhaAtual: number, colunaAtual: number) {
-    if (matriz[linhaAtual][colunaAtual] === 'As') {
+    if (matriz[linhaAtual][colunaAtual] === Itens.AGENTE_LIXO_SECO) {
       setGari({ ...gari, quantidadeLS: gari.quantidadeLS + 1 })
     }
-    if (matriz[linhaAtual][colunaAtual] === 'Ao') {
+    if (matriz[linhaAtual][colunaAtual] === Itens.AGENTE_LIXO_ORGANICO) {
       setGari({ ...gari, quantidadeLO: gari.quantidadeLO + 1 })
     }
-    if (matriz[linhaAtual][colunaAtual] === 'Ae') {
+    if (matriz[linhaAtual][colunaAtual] === Itens.AGENTE_LIXO_ELETRONICO) {
       setGari({ ...gari, quantidadeLE: gari.quantidadeLE + 1 })
     }
   }
 
   function lixoParaLixeira(linhaAtual: number, colunaAtual: number) {
-    if (matriz[linhaAtual][colunaAtual + 1] === 'LS'
-      || matriz[linhaAtual][colunaAtual - 1] === 'LS'
-      || matriz[linhaAtual + 1][colunaAtual] === 'LS'
-      || matriz[linhaAtual - 1][colunaAtual] === 'LS'
+    if (matriz[linhaAtual][colunaAtual + 1] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_SECO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_SECO
     ) {
       setGari({ ...gari, quantidadeLO: 0 })
     }
-    if (matriz[linhaAtual][colunaAtual + 1] === 'LE'
-      || matriz[linhaAtual][colunaAtual - 1] === 'LE'
-      || matriz[linhaAtual + 1][colunaAtual] === 'LE'
-      || matriz[linhaAtual - 1][colunaAtual] === 'LE'
+    if (matriz[linhaAtual][colunaAtual + 1] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_ELETRONICO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_ELETRONICO
     ) {
       setGari({ ...gari, quantidadeLE: 0 })
     }
-    if (matriz[linhaAtual][colunaAtual + 1] === 'LO'
-      || matriz[linhaAtual][colunaAtual - 1] === 'LO'
-      || matriz[linhaAtual + 1][colunaAtual] === 'LO'
-      || matriz[linhaAtual - 1][colunaAtual] === 'LO'
+    if (matriz[linhaAtual][colunaAtual + 1] === Itens.LIXEIRA_ORGANICO
+      || matriz[linhaAtual][colunaAtual - 1] === Itens.LIXEIRA_ORGANICO
+      || matriz[linhaAtual + 1][colunaAtual] === Itens.LIXEIRA_ORGANICO
+      || matriz[linhaAtual - 1][colunaAtual] === Itens.LIXEIRA_ORGANICO
     ) {
       setGari({ ...gari, quantidadeLS: 0 })
     }
   }
 
+  console.log(gari)
+
 
   return (
     <div className="App">
       <header className="App-header">
+        <button onClick={moverDireita}>Mover direita</button>
         <button style={{ width: '150px', height: '50px' }} onClick={() => { geraMatriz() }} >Iniciar matriz</button>
         {gerar &&
           matriz.map((linha, index1) => {
