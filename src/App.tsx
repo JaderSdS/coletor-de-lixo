@@ -154,13 +154,9 @@ function App() {
       draft[linha][coluna] = Itens.LIVRE;
     }))
 
-    setGari(state => ({
-      ...state,
-      posicao: {
-        ...state.posicao,
-        coluna: state.posicao.coluna + 1,
-      }
-    }))
+    setGari(state => produce(state, draft => {
+      draft.posicao.coluna+= 1;
+    }));
   };
 
   function moverEsquerda(linhaAtual: number, colunaAtual: number) {
