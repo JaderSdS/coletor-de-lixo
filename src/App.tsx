@@ -1851,6 +1851,20 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <div>
+          {movendoInicio && "Movendo para o inicio"}
+
+          {movendoPorTodaMatriz && "Movendo por toda a matriz"}
+
+          {movendoLixeiraEletronico && "Movendo para lixeira eletronica"}
+
+          {movendoLixeiraOrganica && "Movendo para lixeira orgânica"}
+
+          {movendoLixeiraSeco && "Movendo lixeira seca"}
+
+          {recolhendoLixo && "Recolhendo lixo"}
+        </div>
+
         <div style={{ position: "absolute", top: 10, right: 10 }}>
           <div>Quantidade</div>
           <div
