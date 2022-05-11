@@ -51,7 +51,6 @@ function App() {
     quantidadeLixo: 0,
   });
 
-  const [status, setStatus] = useState("movendo-para-o-inicio");
   const [proximaDirecao, setProximaDirecao] = useState<
     "direita" | "esquerda" | null
   >(null);
@@ -888,7 +887,7 @@ function App() {
     if (!gerar) return;
 
     verificarEColetarLixo();
-  }, [gerar, status, verificarEColetarLixo]);
+  }, [gerar, verificarEColetarLixo]);
 
   const moverGariParaOInicio = useCallback(async () => {
     if (movendo) return false;
@@ -944,7 +943,7 @@ function App() {
         setMovendoPorTodaMatriz(true);
       }
     });
-  }, [gerar, movendoLixeiraEletronico, movendoLixeiraOrganica, movendoPorTodaMatriz, moverGariParaOInicio, status]);
+  }, [gerar, movendoLixeiraEletronico, movendoLixeiraOrganica, movendoPorTodaMatriz, moverGariParaOInicio]);
 
   const moverPorTodaAMatriz = useCallback(async () => {
     if (movendo) return;
@@ -1044,10 +1043,10 @@ function App() {
 
     moverPorTodaAMatriz().then((retorno) => {
       if (retorno) {
-        setStatus("ok");
+        setMovendoPorTodaMatriz(false)
       }
     });
-  }, [gerar, movendoInicio, movendoLixeiraEletronico, movendoLixeiraOrganica, moverPorTodaAMatriz, recolhendoLixo, status]);
+  }, [gerar, movendoInicio, movendoLixeiraEletronico, movendoLixeiraOrganica, moverPorTodaAMatriz, recolhendoLixo]);
 
   return (
     <div className="App">
@@ -1058,15 +1057,6 @@ function App() {
           <div>Lixo seco {gari.quantidadeLS}</div>
           <div>Lixo eletronico {gari.quantidadeLE}</div>
         </div>
-        {/* <button onClick={moverDireita}>Mover direita</button> */}
-        {/* <button
-          style={{ width: "150px", height: "50px" }}
-          onClick={() => {
-            geraMatriz();
-          }}
-        >
-          Iniciar matriz
-        </button> */}
         {gerar &&
           matriz.map((linha, index1) => {
             return (
