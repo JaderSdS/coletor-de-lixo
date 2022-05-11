@@ -14,13 +14,16 @@ import {
 
 function App() {
   const [matriz, setMatriz] = useState<Itens[][]>([[]]);
-  const [gerar, setGerar] = useState(false);
+  const [gerar, setGerar] = useState(false); // Indica se foi inicializado
+
   const [gari, setGari] = useState<Gari>({
     quantidadeLO: 0,
     quantidadeLS: 0,
     quantidadeLE: 0,
     posicao: POSICAO_INICIAL_GARI,
   });
+
+  // Ações
   const [movendoInicio, setMovendoInicio] = useState(true);
   const [movendoLixeiraOrganica, setMovendoLixeiraOrganica] = useState(false);
   const [movendoLixeiraEletronico, setMovendoLixeiraEletronico] =
@@ -30,6 +33,7 @@ function App() {
   const [movendo, setMovendo] = useState(false);
   const [recolhendoLixo, setRecolhendoLixo] = useState(false);
 
+  // Lixeras
   const [lixeiraCimaEsquerdaS, setLixeiraCimaEsquerdaS] = useState<Lixeira>({
     coluna: LIXEIRAS_SECO[0].coluna,
     linha: LIXEIRAS_SECO[0].linha,
@@ -103,7 +107,8 @@ function App() {
     "direita" | "esquerda" | null
   >(null);
 
-  const [quantidadeO, setQuantidadeO] = useState(0);
+  // Quantidade de lixo gerada por cada tipo de lixo
+  const [quantidadeO, setQuantidadeO] = useState(0); 
   const [quantidadeS, setQuantidadeS] = useState(0);
   const [quantidadeE, setQuantidadeE] = useState(0);
 
@@ -191,6 +196,8 @@ function App() {
     // setGerar(true);
   }, [ambiente]);
 
+
+  // Movimentar o Gari para alguma direção
   const moverDireita = useCallback(() => {
     return new Promise<void>((resolve, reject) => {
       const { coluna, linha } = gari.posicao;
@@ -465,10 +472,8 @@ function App() {
     });
   }, [gari.posicao, matriz]);
 
-  // useEffect(() => {
-  //   geraMatriz();
-  // }, []);
 
+  // Movimentar o gari até a lixeira quando ele estiver lotado de algum tipo de lixo
   const moveParaLixeiraSeco = useCallback(async () => {
     if (movendo) return;
 
@@ -1156,51 +1161,6 @@ function App() {
     lixeiraCentroDireitaE,
   ]);
 
-  useEffect(() => {
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraSeco) return;
-    if (movendoLixeiraEletronico) return;
-
-    if (gari.quantidadeLE === QUANTIDADE_MAXIMA_LIXO) {
-      setMovendoInicio(false);
-      setMovendoPorTodaMatriz(false);
-      setMovendoLixeiraEletronico(true);
-      setMovendoLixeiraOrganica(false);
-      setMovendoLixeiraSeco(false);
-    }
-  }, [
-    gari.quantidadeLE,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-    movendoLixeiraEletronico,
-  ]);
-
-  useEffect(() => {
-    if (!movendoLixeiraEletronico) return;
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraSeco) return;
-
-    moveParaLixeiraEletronico();
-  }, [
-    moveParaLixeiraEletronico,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-  ]);
-
-  useEffect(() => {
-    if (!movendoLixeiraSeco) return;
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraEletronico) return;
-
-    moveParaLixeiraSeco();
-  }, [
-    moveParaLixeiraSeco,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-  ]);
-
   const moveParaLixeiraOrganica = useCallback(async () => {
     if (movendo) return;
 
@@ -1546,57 +1506,7 @@ function App() {
     lixeiraCentroDireitaO,
   ]);
 
-  useEffect(() => {
-    if (movendoLixeiraEletronico) return;
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraSeco) return;
-
-    if (gari.quantidadeLO === QUANTIDADE_MAXIMA_LIXO) {
-      setMovendoInicio(false);
-      setMovendoPorTodaMatriz(false);
-      setMovendoLixeiraOrganica(true);
-      setMovendoLixeiraEletronico(false);
-      setMovendoLixeiraSeco(false);
-    }
-  }, [
-    gari.quantidadeLO,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-  ]);
-
-  useEffect(() => {
-    if (!movendoLixeiraOrganica) return;
-    if (movendoLixeiraEletronico) return;
-    if (movendoLixeiraSeco) return;
-
-    moveParaLixeiraOrganica();
-  }, [
-    moveParaLixeiraOrganica,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-  ]);
-
-  useEffect(() => {
-    if (movendoLixeiraEletronico) return;
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraSeco) return;
-
-    if (gari.quantidadeLS === QUANTIDADE_MAXIMA_LIXO) {
-      setMovendoInicio(false);
-      setMovendoPorTodaMatriz(false);
-      setMovendoLixeiraSeco(true);
-      setMovendoLixeiraEletronico(false);
-      setMovendoLixeiraOrganica(false);
-    }
-  }, [
-    gari.quantidadeLS,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-  ]);
-
+  // Verificar cada celula a cada mudança de lugar se existe um lixo naquele espaço
   const verificarEColetarLixo = useCallback(() => {
     if (
       matriz[gari.posicao.linha][gari.posicao.coluna] ===
@@ -1664,12 +1574,7 @@ function App() {
     matriz,
   ]);
 
-  useEffect(() => {
-    if (!gerar) return;
-
-    verificarEColetarLixo();
-  }, [gerar, verificarEColetarLixo]);
-
+  // Mover o gari até o inicio a cada limpeza de lixo
   const moverGariParaOInicio = useCallback(async () => {
     if (movendo) return false;
 
@@ -1704,30 +1609,7 @@ function App() {
     movendo,
   ]);
 
-  useEffect(() => {
-    if (!gerar) return;
-
-    if (movendoLixeiraOrganica) return;
-    if (movendoLixeiraSeco) return;
-    if (movendoLixeiraEletronico) return;
-
-    if (movendoPorTodaMatriz) return;
-
-    moverGariParaOInicio().then((retorno) => {
-      if (retorno) {
-        setMovendoInicio(false);
-        setMovendoPorTodaMatriz(true);
-      }
-    });
-  }, [
-    gerar,
-    movendoLixeiraEletronico,
-    movendoLixeiraOrganica,
-    movendoLixeiraSeco,
-    movendoPorTodaMatriz,
-    moverGariParaOInicio,
-  ]);
-
+  // Mover o gari por toda a matriz para juntar o lixo
   const moverPorTodaAMatriz = useCallback(async () => {
     if (movendo) return;
 
@@ -1759,17 +1641,6 @@ function App() {
       setProximaDirecao(null);
       return;
     }
-
-    // if (gari.posicao.linha === 5) {
-    //   setMovendo(true);
-    //   try {
-    //     await moverDireita();
-    //   } catch {
-    //     await moverBaixo();
-    //   }
-    //   setMovendo(false);
-    //   return;
-    // }
 
     if (gari.posicao.coluna === 0) {
       setMovendo(true);
@@ -1831,6 +1702,132 @@ function App() {
     moverDireita,
     moverEsquerda,
     proximaDirecao,
+  ]);
+
+  useEffect(() => {
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+    if (movendoLixeiraEletronico) return;
+
+    if (gari.quantidadeLE === QUANTIDADE_MAXIMA_LIXO) {
+      setMovendoInicio(false);
+      setMovendoPorTodaMatriz(false);
+      setMovendoLixeiraEletronico(true);
+      setMovendoLixeiraOrganica(false);
+      setMovendoLixeiraSeco(false);
+    }
+  }, [
+    gari.quantidadeLE,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+    movendoLixeiraEletronico,
+  ]);
+
+  useEffect(() => {
+    if (!movendoLixeiraEletronico) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+
+    moveParaLixeiraEletronico();
+  }, [
+    moveParaLixeiraEletronico,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
+
+  useEffect(() => {
+    if (!movendoLixeiraSeco) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraEletronico) return;
+
+    moveParaLixeiraSeco();
+  }, [
+    moveParaLixeiraSeco,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
+
+  useEffect(() => {
+    if (!gerar) return;
+
+    verificarEColetarLixo();
+  }, [gerar, verificarEColetarLixo]);
+
+  useEffect(() => {
+    if (!gerar) return;
+
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+    if (movendoLixeiraEletronico) return;
+
+    if (movendoPorTodaMatriz) return;
+
+    moverGariParaOInicio().then((retorno) => {
+      if (retorno) {
+        setMovendoInicio(false);
+        setMovendoPorTodaMatriz(true);
+      }
+    });
+  }, [
+    gerar,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+    movendoPorTodaMatriz,
+    moverGariParaOInicio,
+  ]);
+
+  useEffect(() => {
+    if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+
+    if (gari.quantidadeLO === QUANTIDADE_MAXIMA_LIXO) {
+      setMovendoInicio(false);
+      setMovendoPorTodaMatriz(false);
+      setMovendoLixeiraOrganica(true);
+      setMovendoLixeiraEletronico(false);
+      setMovendoLixeiraSeco(false);
+    }
+  }, [
+    gari.quantidadeLO,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
+
+  useEffect(() => {
+    if (!movendoLixeiraOrganica) return;
+    if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraSeco) return;
+
+    moveParaLixeiraOrganica();
+  }, [
+    moveParaLixeiraOrganica,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
+
+  useEffect(() => {
+    if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+
+    if (gari.quantidadeLS === QUANTIDADE_MAXIMA_LIXO) {
+      setMovendoInicio(false);
+      setMovendoPorTodaMatriz(false);
+      setMovendoLixeiraSeco(true);
+      setMovendoLixeiraEletronico(false);
+      setMovendoLixeiraOrganica(false);
+    }
+  }, [
+    gari.quantidadeLS,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
   ]);
 
   useEffect(() => {
@@ -1979,7 +1976,6 @@ function App() {
           </div>
 
           <br />
-
           <div>Lixeiras 3</div>
           <div
             style={{
@@ -2052,36 +2048,35 @@ function App() {
             Eletrônico {lixeiraCentroDireitaE.quantidadeLixo}
           </div>
         </div>
-        {
-          matriz.map((linha, index1) => {
-            return (
-              <div
-                key={index1}
-                style={{ display: "flex", flex: 20, maxHeight: "42px" }}
-              >
-                {linha.map((coluna, index2) => {
-                  return (
-                    <div
-                      key={index2}
-                      id={"div_" + index1 + "_" + index2}
-                      style={{
-                        color: "blue",
-                        fontSize: "20px",
-                        backgroundColor: "white",
-                        border: "1px solid black",
-                        width: "38px",
-                        height: "40px",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {coluna}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+        {matriz.map((linha, index1) => {
+          return (
+            <div
+              key={index1}
+              style={{ display: "flex", flex: 20, maxHeight: "42px" }}
+            >
+              {linha.map((coluna, index2) => {
+                return (
+                  <div
+                    key={index2}
+                    id={"div_" + index1 + "_" + index2}
+                    style={{
+                      color: "blue",
+                      fontSize: "20px",
+                      backgroundColor: "white",
+                      border: "1px solid black",
+                      width: "38px",
+                      height: "40px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {coluna}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </header>
     </div>
   );

@@ -1,5 +1,5 @@
 
-export const TIMEOUT = 5;
+export const TIMEOUT = 100; // Velocidade de cada ação em milisegundos
 
 export const LIXEIRAS_SECO = [
   { coluna: 0, linha: 0 },
@@ -20,7 +20,7 @@ export const LIXEIRAS_ELETRONICO = [
   { coluna: 19, linha: 0 },
 ];
 
-export const QUANTIDADE_MAXIMA_LIXEIRA = 20;
+export const QUANTIDADE_MAXIMA_LIXEIRA = 40;
 
 export const QUANTIDADE_MAXIMA_LIXO = 10;
 
