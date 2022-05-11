@@ -22,30 +22,41 @@ function App() {
   });
   const [movendoInicio, setMovendoInicio] = useState(true);
   const [movendoLixeiraOrganica, setMovendoLixeiraOrganica] = useState(false);
-  const [movendoLixeiraEletronico, setMovendoLixeiraEletronico] = useState(false);
+  const [movendoLixeiraEletronico, setMovendoLixeiraEletronico] =
+    useState(false);
+  const [movendoLixeiraSeco, setMovendoLixeiraSeco] = useState(false);
   const [movendoPorTodaMatriz, setMovendoPorTodaMatriz] = useState(false);
   const [movendo, setMovendo] = useState(false);
   const [recolhendoLixo, setRecolhendoLixo] = useState(false);
 
+  const [lixeiraCimaEsquerdaS, setLixeiraCimaEsquerdaS] = useState<Lixeira>({
+    coluna: LIXEIRAS_SECO[0].coluna,
+    linha: LIXEIRAS_SECO[0].linha,
+    quantidadeLixo: 0,
+  });
+  const [lixeiraCimaDireitaS, setLixeiraCimaDireitaS] = useState<Lixeira>({
+    coluna: LIXEIRAS_SECO[1].coluna,
+    linha: LIXEIRAS_SECO[1].linha,
+    quantidadeLixo: 0,
+  });
 
-  const [lixeiraCimaEsquerdaO, setLixeiraCimEsquerdaO] = useState<Lixeira>({
+  const [lixeiraCimaEsquerdaO, setLixeiraCimaEsquerdaO] = useState<Lixeira>({
     coluna: LIXEIRAS_ORGANICO[0].coluna,
     linha: LIXEIRAS_ORGANICO[0].linha,
     quantidadeLixo: 0,
   });
-  const [lixeiraCimaDireitaO, setLixeiraCimDireitaO] = useState<Lixeira>({
+  const [lixeiraCimaDireitaO, setLixeiraCimaDireitaO] = useState<Lixeira>({
     coluna: LIXEIRAS_ORGANICO[1].coluna,
-    linha:  LIXEIRAS_ORGANICO[1].linha,
+    linha: LIXEIRAS_ORGANICO[1].linha,
     quantidadeLixo: 0,
   });
 
-
-  const [lixeiraCimaEsquerdaE, setLixeiraCimEsquerdaE] = useState<Lixeira>({
+  const [lixeiraCimaEsquerdaE, setLixeiraCimaEsquerdaE] = useState<Lixeira>({
     coluna: LIXEIRAS_ELETRONICO[0].coluna,
     linha: LIXEIRAS_ELETRONICO[0].linha,
     quantidadeLixo: 0,
   });
-  const [lixeiraCimaDireitaE, setLixeiraCimDireitaE] = useState<Lixeira>({
+  const [lixeiraCimaDireitaE, setLixeiraCimaDireitaE] = useState<Lixeira>({
     coluna: LIXEIRAS_ELETRONICO[1].coluna,
     linha: LIXEIRAS_ELETRONICO[1].linha,
     quantidadeLixo: 0,
@@ -421,7 +432,185 @@ function App() {
     geraMatriz();
   }, []);
 
+  const moveParaLixeiraSeco = useCallback(async () => {
+    if (movendo) return;
 
+    if (lixeiraCimaEsquerdaS.quantidadeLixo < QUANTIDADE_MAXIMA_LIXEIRA) {
+      if (gari.posicao.coluna > lixeiraCimaEsquerdaS.coluna) {
+        try {
+          setMovendo(true);
+          await moverEsquerda();
+          setMovendo(false);
+        } catch (error) {
+          if (error === "Não é possível se mover para uma lixeira.") {
+            setMovendo(true);
+
+            await moverBaixo();
+            setMovendo(false);
+          }
+        }
+        return;
+      }
+
+      if (gari.posicao.coluna < lixeiraCimaEsquerdaS.coluna) {
+        setMovendo(true);
+
+        await moverDireita();
+        setMovendo(false);
+
+        return;
+      }
+
+      if (gari.posicao.linha - lixeiraCimaEsquerdaS.linha > 1) {
+        try {
+          setMovendo(true);
+          await moverCima();
+          setMovendo(false);
+        } catch (erro) {
+          console.log(erro);
+        }
+        return;
+      } else {
+        if (
+          gari.quantidadeLS <= QUANTIDADE_MAXIMA_LIXEIRA &&
+          gari.quantidadeLS <=
+            QUANTIDADE_MAXIMA_LIXEIRA - lixeiraCimaEsquerdaS.quantidadeLixo
+        ) {
+          setGari((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLS = 0;
+            })
+          );
+          setLixeiraCimaEsquerdaS((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLixo += gari.quantidadeLS;
+            })
+          );
+        }
+
+        if (
+          gari.quantidadeLS >
+          QUANTIDADE_MAXIMA_LIXEIRA - lixeiraCimaEsquerdaS.quantidadeLixo
+        ) {
+          setGari((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLS =
+                gari.quantidadeLS -
+                (QUANTIDADE_MAXIMA_LIXEIRA -
+                  lixeiraCimaEsquerdaS.quantidadeLixo);
+            })
+          );
+          setLixeiraCimaEsquerdaS((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
+            })
+          );
+        }
+        console.log("Limpou a carga de organico.");
+        setMovendoInicio(true);
+        setMovendoLixeiraSeco(false);
+      }
+    } else if (lixeiraCimaDireitaS.quantidadeLixo < QUANTIDADE_MAXIMA_LIXEIRA) {
+      if (gari.posicao.coluna > lixeiraCimaDireitaS.coluna) {
+        try {
+          setMovendo(true);
+
+          await moverEsquerda();
+          setMovendo(false);
+        } catch (error) {
+          if (error === "Não é possível se mover para uma lixeira.") {
+            setMovendo(true);
+
+            await moverBaixo();
+            setMovendo(false);
+          }
+        }
+        return;
+      }
+
+      if (gari.posicao.coluna < lixeiraCimaDireitaS.coluna) {
+        try {
+          setMovendo(true);
+
+          await moverDireita();
+          setMovendo(false);
+        } catch (error) {
+          if (error === "Não é possível se mover para uma lixeira.") {
+            setMovendo(true);
+            await moverBaixo();
+            setMovendo(false);
+          }
+        }
+        return;
+      }
+
+      if (gari.posicao.linha - lixeiraCimaDireitaS.linha > 1) {
+        try {
+          setMovendo(true);
+          await moverCima();
+          setMovendo(false);
+        } catch (erro) {
+          console.log(erro);
+        }
+        return;
+      } else {
+        if (
+          gari.quantidadeLS <= QUANTIDADE_MAXIMA_LIXEIRA &&
+          gari.quantidadeLS <=
+            QUANTIDADE_MAXIMA_LIXEIRA - lixeiraCimaDireitaS.quantidadeLixo
+        ) {
+          setGari((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLS = 0;
+            })
+          );
+          setLixeiraCimaDireitaS((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLixo += gari.quantidadeLS;
+            })
+          );
+        }
+
+        if (
+          gari.quantidadeLS >
+          QUANTIDADE_MAXIMA_LIXEIRA - lixeiraCimaDireitaS.quantidadeLixo
+        ) {
+          setGari((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLS =
+                gari.quantidadeLS -
+                (QUANTIDADE_MAXIMA_LIXEIRA -
+                  lixeiraCimaDireitaS.quantidadeLixo);
+            })
+          );
+          setLixeiraCimaDireitaS((state) =>
+            produce(state, (draft) => {
+              draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
+            })
+          );
+        }
+        console.log("Limpou a carga de organico.");
+        setMovendoInicio(true);
+        setMovendoLixeiraSeco(false); // TODO ALTERAR
+      }
+    }
+
+    // TODO
+    // LixeiraEsquerdaBaixo
+    // LixeiraDireitaBaixo
+  }, [
+    gari.posicao.coluna,
+    gari.posicao.linha,
+    gari.quantidadeLS,
+    lixeiraCimaDireitaS,
+
+    lixeiraCimaEsquerdaS,
+    movendo,
+    moverBaixo,
+    moverCima,
+    moverDireita,
+    moverEsquerda,
+  ]);
 
   const moveParaLixeiraEletronico = useCallback(async () => {
     if (movendo) return;
@@ -472,7 +661,7 @@ function App() {
               draft.quantidadeLE = 0;
             })
           );
-          setLixeiraCimEsquerdaE((state) =>
+          setLixeiraCimaEsquerdaE((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo += gari.quantidadeLE;
             })
@@ -491,7 +680,7 @@ function App() {
                   lixeiraCimaEsquerdaE.quantidadeLixo);
             })
           );
-          setLixeiraCimEsquerdaE((state) =>
+          setLixeiraCimaEsquerdaE((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
             })
@@ -501,8 +690,7 @@ function App() {
         setMovendoInicio(true);
         setMovendoLixeiraEletronico(false);
       }
-    } 
-    else if (lixeiraCimaDireitaE.quantidadeLixo < QUANTIDADE_MAXIMA_LIXEIRA) {
+    } else if (lixeiraCimaDireitaE.quantidadeLixo < QUANTIDADE_MAXIMA_LIXEIRA) {
       if (gari.posicao.coluna > lixeiraCimaDireitaE.coluna) {
         try {
           setMovendo(true);
@@ -556,7 +744,7 @@ function App() {
               draft.quantidadeLE = 0;
             })
           );
-          setLixeiraCimDireitaE((state) =>
+          setLixeiraCimaDireitaE((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo += gari.quantidadeLE;
             })
@@ -575,7 +763,7 @@ function App() {
                   lixeiraCimaDireitaE.quantidadeLixo);
             })
           );
-          setLixeiraCimDireitaE((state) =>
+          setLixeiraCimaDireitaE((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
             })
@@ -591,19 +779,20 @@ function App() {
     // LixeiraEsquerdaBaixo
     // LixeiraDireitaBaixo
   }, [
-   gari.posicao,
-   gari.quantidadeLE,
-   lixeiraCimaDireitaE,
-   lixeiraCimaEsquerdaE,
-   movendo,
-   moverBaixo,
-   moverCima,
-   moverDireita,
-   moverEsquerda,
+    gari.posicao,
+    gari.quantidadeLE,
+    lixeiraCimaDireitaE,
+    lixeiraCimaEsquerdaE,
+    movendo,
+    moverBaixo,
+    moverCima,
+    moverDireita,
+    moverEsquerda,
   ]);
 
   useEffect(() => {
     if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
 
     if (gari.quantidadeLE === QUANTIDADE_MAXIMA_LIXO) {
       setMovendoInicio(false);
@@ -611,14 +800,32 @@ function App() {
       setMovendoLixeiraEletronico(true);
       // setMovendoLixeiraOrganica(true);
     }
-  }, [gari.quantidadeLE, movendoLixeiraOrganica]);
+  }, [gari.quantidadeLE, movendoLixeiraOrganica, movendoLixeiraSeco]);
 
   useEffect(() => {
     if (!movendoLixeiraEletronico) return;
     if (movendoLixeiraOrganica) return;
-    
+
     moveParaLixeiraEletronico();
-  }, [moveParaLixeiraEletronico, movendoLixeiraEletronico, movendoLixeiraOrganica]);
+  }, [
+    moveParaLixeiraEletronico,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+  ]);
+
+  useEffect(() => {
+    if (!movendoLixeiraSeco) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraEletronico) return;
+
+    moveParaLixeiraSeco();
+  }, [
+    moveParaLixeiraEletronico,
+    moveParaLixeiraSeco,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
 
   const moveParaLixeiraOrganica = useCallback(async () => {
     if (movendo) return;
@@ -669,7 +876,7 @@ function App() {
               draft.quantidadeLO = 0;
             })
           );
-          setLixeiraCimEsquerdaO((state) =>
+          setLixeiraCimaEsquerdaO((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo += gari.quantidadeLO;
             })
@@ -688,7 +895,7 @@ function App() {
                   lixeiraCimaEsquerdaO.quantidadeLixo);
             })
           );
-          setLixeiraCimEsquerdaO((state) =>
+          setLixeiraCimaEsquerdaO((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
             })
@@ -752,7 +959,7 @@ function App() {
               draft.quantidadeLO = 0;
             })
           );
-          setLixeiraCimDireitaO((state) =>
+          setLixeiraCimaDireitaO((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo += gari.quantidadeLO;
             })
@@ -771,7 +978,7 @@ function App() {
                   lixeiraCimaDireitaO.quantidadeLixo);
             })
           );
-          setLixeiraCimDireitaO((state) =>
+          setLixeiraCimaDireitaO((state) =>
             produce(state, (draft) => {
               draft.quantidadeLixo = QUANTIDADE_MAXIMA_LIXEIRA;
             })
@@ -791,30 +998,61 @@ function App() {
     gari.quantidadeLO,
     lixeiraCimaDireitaO,
     lixeiraCimaEsquerdaO,
-    movendo,moverBaixo,moverCima,
+    movendo,
+    moverBaixo,
+    moverCima,
     moverDireita,
-    moverEsquerda
+    moverEsquerda,
   ]);
 
   useEffect(() => {
+    if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
+
     if (gari.quantidadeLO === QUANTIDADE_MAXIMA_LIXO) {
       console.log("Deve esvaziar lixo organico");
       setMovendoInicio(false);
       setMovendoPorTodaMatriz(false);
       setMovendoLixeiraOrganica(true);
     }
-  }, [gari.quantidadeLO, moveParaLixeiraOrganica, movendoInicio]);
+  }, [
+    gari.quantidadeLO,
+    moveParaLixeiraOrganica,
+    movendoInicio,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
 
   useEffect(() => {
     if (!movendoLixeiraOrganica) return;
     if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraSeco) return;
+
     moveParaLixeiraOrganica();
-  }, [moveParaLixeiraOrganica, movendoLixeiraEletronico, movendoLixeiraOrganica]);
+  }, [
+    moveParaLixeiraOrganica,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
 
   useEffect(() => {
+    if (movendoLixeiraEletronico) return;
+    if (movendoLixeiraOrganica) return;
+    if (movendoLixeiraSeco) return;
     if (gari.quantidadeLS === QUANTIDADE_MAXIMA_LIXO) {
+      setMovendoInicio(false);
+      setMovendoPorTodaMatriz(false);
+      setMovendoLixeiraSeco(true);
     }
-  }, [gari.quantidadeLS]);
+  }, [
+    gari.quantidadeLS,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+  ]);
 
   const verificarEColetarLixo = useCallback(() => {
     if (
@@ -932,7 +1170,7 @@ function App() {
     if (!gerar) return;
 
     if (movendoLixeiraOrganica) return;
-
+    if (movendoLixeiraSeco) return;
     if (movendoLixeiraEletronico) return;
 
     if (movendoPorTodaMatriz) return;
@@ -943,7 +1181,14 @@ function App() {
         setMovendoPorTodaMatriz(true);
       }
     });
-  }, [gerar, movendoLixeiraEletronico, movendoLixeiraOrganica, movendoPorTodaMatriz, moverGariParaOInicio]);
+  }, [
+    gerar,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    movendoLixeiraSeco,
+    movendoPorTodaMatriz,
+    moverGariParaOInicio,
+  ]);
 
   const moverPorTodaAMatriz = useCallback(async () => {
     if (movendo) return;
@@ -1034,7 +1279,7 @@ function App() {
     if (!gerar) return;
 
     if (movendoLixeiraOrganica) return;
-
+    if (movendoLixeiraSeco) return;
     if (movendoLixeiraEletronico) return;
 
     if (recolhendoLixo) return;
@@ -1043,10 +1288,18 @@ function App() {
 
     moverPorTodaAMatriz().then((retorno) => {
       if (retorno) {
-        setMovendoPorTodaMatriz(false)
+        setMovendoPorTodaMatriz(false);
       }
     });
-  }, [gerar, movendoInicio, movendoLixeiraEletronico, movendoLixeiraOrganica, moverPorTodaAMatriz, recolhendoLixo]);
+  }, [
+    gerar,
+    movendoInicio,
+    movendoLixeiraEletronico,
+    movendoLixeiraOrganica,
+    moverPorTodaAMatriz,
+    recolhendoLixo,
+    movendoLixeiraSeco,
+  ]);
 
   return (
     <div className="App">
