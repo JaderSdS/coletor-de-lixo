@@ -25,7 +25,7 @@ export const LIXEIRAS_ELETRONICO = [
   { coluna: 15, linha: 14 },
 ];
 
-export const QUANTIDADE_MAXIMA_LIXO = 2;
+export const QUANTIDADE_MAXIMA_LIXO = 20;
 
 export const POSICAO_INICIAL_GARI = {
   coluna: 1,
