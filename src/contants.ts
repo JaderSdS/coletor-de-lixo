@@ -1,6 +1,6 @@
 import { Lixeira } from "./types";
 
-export const TIMEOUT = 10;
+export const TIMEOUT = 200;
 
 export const LIXEIRAS_SECO = [
   { coluna: 0, linha: 0 },

@@ -1193,7 +1193,7 @@ function App() {
     if (movendoLixeiraOrganica) return;
     if (movendoLixeiraEletronico) return;
 
-    moveParaLixeiraSeco()
+    moveParaLixeiraSeco();
   }, [
     moveParaLixeiraSeco,
     movendoLixeiraEletronico,
@@ -1570,7 +1570,7 @@ function App() {
     if (movendoLixeiraEletronico) return;
     if (movendoLixeiraSeco) return;
 
-    moveParaLixeiraOrganica()
+    moveParaLixeiraOrganica();
   }, [
     moveParaLixeiraOrganica,
     movendoLixeiraEletronico,
@@ -1853,9 +1853,175 @@ function App() {
       <header className="App-header">
         <div style={{ position: "absolute", top: 10, right: 10 }}>
           <div>Quantidade</div>
-          <div>Lixo organico {gari.quantidadeLO}</div>
-          <div>Lixo seco {gari.quantidadeLS}</div>
-          <div>Lixo eletronico {gari.quantidadeLE}</div>
+          <div
+            style={{
+              color:
+                gari.quantidadeLO === QUANTIDADE_MAXIMA_LIXO ? "red" : "green",
+            }}
+          >
+            Lixo organico {gari.quantidadeLO}
+          </div>
+          <div
+            style={{
+              color:
+                gari.quantidadeLS === QUANTIDADE_MAXIMA_LIXO ? "red" : "green",
+            }}
+          >
+            Lixo seco {gari.quantidadeLS}
+          </div>
+          <div
+            style={{
+              color:
+                gari.quantidadeLE === QUANTIDADE_MAXIMA_LIXO ? "red" : "green",
+            }}
+          >
+            Lixo eletronico {gari.quantidadeLE}
+          </div>
+        </div>
+
+        <div style={{ position: "absolute", top: 10, left: 10 }}>
+          <div>Lixeiras 1</div>
+          <div
+            style={{
+              color:
+                lixeiraCimaEsquerdaO.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Orgânica {lixeiraCimaEsquerdaO.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCimaEsquerdaS.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Seca {lixeiraCimaEsquerdaS.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCimaEsquerdaE.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Eletrônico {lixeiraCimaEsquerdaE.quantidadeLixo}
+          </div>
+
+          <br />
+
+          <div>Lixeiras 2</div>
+          <div
+            style={{
+              color:
+                lixeiraCimaDireitaO.quantidadeLixo === QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Orgânica {lixeiraCimaDireitaO.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCimaDireitaS.quantidadeLixo === QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Seca {lixeiraCimaDireitaS.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCimaDireitaE.quantidadeLixo === QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Eletrônico {lixeiraCimaDireitaE.quantidadeLixo}
+          </div>
+
+          <br />
+
+          <div>Lixeiras 3</div>
+          <div
+            style={{
+              color:
+                lixeiraCentroEsquerdaO.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Orgânica {lixeiraCentroEsquerdaO.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCentroEsquerdaS.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Seca {lixeiraCentroEsquerdaS.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCentroEsquerdaE.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Eletrônico {lixeiraCentroEsquerdaE.quantidadeLixo}
+          </div>
+
+          <br />
+
+          <div>Lixeiras 4</div>
+          <div
+            style={{
+              color:
+                lixeiraCentroDireitaO.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Orgânica {lixeiraCentroDireitaO.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCentroDireitaS.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Seca {lixeiraCentroDireitaS.quantidadeLixo}
+          </div>
+          <div
+            style={{
+              color:
+                lixeiraCentroDireitaE.quantidadeLixo ===
+                QUANTIDADE_MAXIMA_LIXEIRA
+                  ? "red"
+                  : "green",
+            }}
+          >
+            Eletrônico {lixeiraCentroDireitaE.quantidadeLixo}
+          </div>
         </div>
         {gerar &&
           matriz.map((linha, index1) => {
