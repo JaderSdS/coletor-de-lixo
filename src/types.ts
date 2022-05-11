@@ -5,6 +5,12 @@ export enum Direcao {
   BAIXO = 'b'
 }
 
+export type Lixeira = {
+  coluna: number;
+  linha: number;
+  quantidadeLixo: number;
+}
+
 export type Gari = {
   quantidadeLO: number;
   quantidadeLS: number;
