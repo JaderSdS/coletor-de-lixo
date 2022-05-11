@@ -188,7 +188,7 @@ function App() {
       }
     }
     setMatriz(mt);
-    setGerar(true);
+    // setGerar(true);
   }, [ambiente]);
 
   const moverDireita = useCallback(() => {
@@ -465,9 +465,9 @@ function App() {
     });
   }, [gari.posicao, matriz]);
 
-  useEffect(() => {
-    geraMatriz();
-  }, []);
+  // useEffect(() => {
+  //   geraMatriz();
+  // }, []);
 
   const moveParaLixeiraSeco = useCallback(async () => {
     if (movendo) return;
@@ -1673,14 +1673,14 @@ function App() {
   const moverGariParaOInicio = useCallback(async () => {
     if (movendo) return false;
 
-    if (gari.posicao.coluna > 3) {
+    if (gari.posicao.coluna > 6) {
       setMovendo(true);
       await moverEsquerda();
       setMovendo(false);
       return false;
     }
 
-    if (gari.posicao.coluna < 3) {
+    if (gari.posicao.coluna < 6) {
       setMovendo(true);
       await moverDireita();
       setMovendo(false);
@@ -1695,11 +1695,6 @@ function App() {
     }
 
     return true;
-    // if (gari.posicao.coluna === 3 && gari.posicao.linha === 1) {
-    //   return true;
-    // }
-
-    // return true;
   }, [
     gari.posicao.coluna,
     gari.posicao.linha,
@@ -1764,6 +1759,17 @@ function App() {
       setProximaDirecao(null);
       return;
     }
+
+    // if (gari.posicao.linha === 5) {
+    //   setMovendo(true);
+    //   try {
+    //     await moverDireita();
+    //   } catch {
+    //     await moverBaixo();
+    //   }
+    //   setMovendo(false);
+    //   return;
+    // }
 
     if (gari.posicao.coluna === 0) {
       setMovendo(true);
@@ -1857,7 +1863,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          {movendoInicio && "Movendo para o inicio"}
+          {gerar && movendoInicio && "Movendo para o inicio"}
 
           {movendoPorTodaMatriz && "Movendo por toda a matriz"}
 
@@ -1869,6 +1875,10 @@ function App() {
 
           {recolhendoLixo && "Recolhendo lixo"}
         </div>
+
+        <button onClick={geraMatriz}>Gerar matriz</button>
+
+        <button onClick={() => setGerar(true)}>Iniciar</button>
 
         <div style={{ position: "absolute", top: 10, right: 10 }}>
           <div>Quantidade</div>
@@ -2042,7 +2052,7 @@ function App() {
             Eletrônico {lixeiraCentroDireitaE.quantidadeLixo}
           </div>
         </div>
-        {gerar &&
+        {
           matriz.map((linha, index1) => {
             return (
               <div
