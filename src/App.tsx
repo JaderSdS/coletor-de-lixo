@@ -1736,6 +1736,15 @@ function App() {
   const moverPorTodaAMatriz = useCallback(async () => {
     if (movendo) return;
 
+    if (gari.posicao.coluna === 0 && gari.posicao.linha === 19) {
+      setMovendoPorTodaMatriz(false);
+      setMovendoInicio(false);
+      setMovendoLixeiraEletronico(false);
+      setMovendoLixeiraOrganica(false);
+      setMovendoLixeiraSeco(false);
+      return true;
+    }
+
     if (proximaDirecao === "direita") {
       setMovendo(true);
       await moverDireita();
@@ -1807,10 +1816,6 @@ function App() {
       }
       setMovendo(false);
       return;
-    }
-
-    if (gari.posicao.coluna === 19 && gari.posicao.linha === 19) {
-      return true;
     }
   }, [
     gari.posicao.coluna,
